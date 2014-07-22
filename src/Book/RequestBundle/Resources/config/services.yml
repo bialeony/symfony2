@@ -1,0 +1,9 @@
+parameters:
+  book.controller.example.class: Book\RequestBundle\Controller\ExampleController
+#  acme.controller.hello.class: Acme\HelloBundle\Controller\HelloController
+
+services:
+  book.request.controller:
+          class: "%book.controller.example.class%"
+#  acme.hello.controller:
+#        class: "%acme.controller.hello.class%"

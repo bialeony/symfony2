@@ -1,0 +1,7 @@
+blog_list:
+    path:     /blog
+    defaults: { _controller: AcmeBlogBundle:Blog:list }
+
+blog_show:
+    path:     /blog/show/{id}
+    defaults: { _controller: AcmeBlogBundle:Blog:show }

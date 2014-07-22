@@ -1,0 +1,17 @@
+book_request_ex_request:
+    path:     /book/{example_name}/{example_number}
+    defaults: { _controller: BookRequestBundle:Example:index, example_name: request, example_number: 1 }
+
+book_request_ex_service:
+    path:     /bookservice
+    defaults: { _controller: BookRequestBundle:Example:service }
+
+book_request_ex_service_call:
+    path:     /bookservicecall/{name}
+    defaults: { _controller: BookRequestBundle:Example:servicecall, name:Jan }
+
+book_request_ex_service2_call:
+    path:     /bookservice2call/{name}
+    defaults: { _controller: book.request.controller:serviceAction, name:Jan }
+
+

@@ -1,0 +1,10 @@
+acme_blog:
+    resource: "@AcmeBlogBundle/Resources/config/routing.yml"
+    prefix:   /
+
+book_request:
+    resource: "@BookRequestBundle/Resources/config/routing.yml"
+    prefix:   /
+
+
+
