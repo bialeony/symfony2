@@ -12,6 +12,6 @@ book_request_ex_service_call:
 
 book_request_ex_service2_call:
     path:     /bookservice2call/{name}
-    defaults: { _controller: book.request.controller:serviceAction, name:Jan }
+    defaults: { _controller: book.request.controller:serviceAction, name:Janko }
 
 
