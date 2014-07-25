@@ -1,0 +1,12 @@
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="book_request.my_service_type" />
+    </parameters>
+    <services>
+        <service id="book_request.my_service" class="Book\RequestBundle\MyService">
+            <argument>%book_request.my_service_type%</argument>
+        </service>
+    </services>
+</container>

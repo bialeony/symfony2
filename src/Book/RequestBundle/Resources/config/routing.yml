@@ -1,6 +1,6 @@
 book_request_ex_request:
-    path:     /book/{example_name}/{example_number}
-    defaults: { _controller: BookRequestBundle:Example:index, example_name: request, example_number: 1 }
+    path:     /book/{example_name}/{example}
+    defaults: { _controller: BookRequestBundle:Example:index, example_name: request, example: '1' }
 
 book_request_ex_service:
     path:     /bookservice
@@ -14,4 +14,11 @@ book_request_ex_service2_call:
     path:     /bookservice2call/{name}
     defaults: { _controller: book.request.controller:serviceAction, name:Janko }
 
-
+book_request_ex_static:
+    path: /static
+    defaults:
+        _controller: FrameworkBundle:Template:template
+        template: 'BookRequestBundle:Static:privacy.html.twig'
+        maxAge:       86400
+        sharedAge:    86400
+        private:      false

@@ -20,6 +20,13 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('book_request');
 
+        $rootNode
+            ->children()
+                ->scalarNode('my_type')->defaultValue('aaa')->info("Default ...")->end()
+                ->scalarNode('enabled')->defaultValue(false)->info("Default ...")->end()
+            ->end()
+        ;
+
         // Here you should define the parameters that are allowed to
         // configure your bundle. See the documentation linked above for
         // more information on that topic.
