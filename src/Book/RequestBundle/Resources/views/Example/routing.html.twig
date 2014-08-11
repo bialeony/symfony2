@@ -1,0 +1,17 @@
+<h1>Examples:</h1>
+
+<table>
+{% for example in examples %}
+    <tr><td width="350px">{{ example.label }}</td><td>{{ example.value }}</td></tr>
+{% endfor %}
+</table>
+<div>
+    <a href="{{ path('book_request_ex_service_call', {'name': 'Johny Cash'}) }}">
+        Example relative url.
+    </a>
+</div>
+<div>
+    <a href="{{ url('book_request_ex_service_call', {'name': 'Johny Cash'}) }}">
+        Example absolute url.
+    </a>
+</div>

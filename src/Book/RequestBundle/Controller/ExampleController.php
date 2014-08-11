@@ -14,6 +14,8 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 class ExampleController extends Controller
 {
@@ -26,12 +28,86 @@ class ExampleController extends Controller
         return $this->forward('book.request.controller:serviceAction', array('name' => $name));
     }
 
+    public function twigAction($example) {
+        switch ($example) {
+            case '1':
+                $users = array(
+                    array('username'=>'Ján Polák', 'active'=>true),
+                    array('username'=>'Jano Polák', 'active'=>false),
+                    array('username'=>'Daniela Poláková', 'active'=>true),
+
+                );
+                $items = array(
+                    array('caption'=>'Apple', 'href'=>'http://www.apple.com'),
+                    array('caption'=>'Facebook', 'href'=>'http://www.facebook.com'),
+                    array('caption'=>'SLSP', 'href'=>'http://www.slsp.sk'),
+                );
+                $response = $this->render('BookRequestBundle:Example:twig.html.twig', array('page_title'=>'Welcome to Twig!','navigation' => $items, 'users'=>$users));
+                break;
+            case '2':
+                $blog_entries = array(
+                    array('title'=>'Poznávanie ...', 'body'=>'Poznávanie vyšších svetov'),
+                    array('title'=>'Záhady ...', 'body'=>'Záhady filosofie'),
+                    array('title'=>'Paliatívna ...', 'body'=>'Paliatívna starostlivosť ...'),
+                );
+                $response = $this->render('BookRequestBundle:Example:twig2.html.twig', array('blog_entries'=>$blog_entries));
+                break;
+            case '3':
+                $articles = array(
+                    array('title'=>'Poznávanie ...', 'body'=>'Poznávanie vyšších svetov', 'authorName'=>'Rudolf Steiner'),
+                    array('title'=>'Záhady ...', 'body'=>'Záhady filosofie', 'authorName'=>'Rudolf Steiner'),
+                    array('title'=>'Paliatívna ...', 'body'=>'Paliatívna starostlivosť ...', 'authorName'=>'Monique Tavernierová'),
+                );
+                $response = $this->render('BookRequestBundle:Example/Article:list.html.twig', array('articles'=>$articles));
+                break;
+            case '4':
+                $response = $this->recentArticlesAction();
+                break;
+            case '5':
+                $articles = array(
+                    array('title'=>'Poznávanie ...', 'body'=>'Poznávanie vyšších svetov', 'authorName'=>'Rudolf Steiner'),
+                    array('title'=>'Záhady ...', 'body'=>'Záhady filosofie', 'authorName'=>'Rudolf Steiner'),
+                    array('title'=>'Paliatívna ...', 'body'=>'Paliatívna starostlivosť ...', 'authorName'=>'Monique Tavernierová'),
+                );
+                $response = $this->render('BookRequestBundle:Example/Article:list2.html.twig', array('articles'=>$articles));
+                break;
+            default:
+                break;
+        }
+        return $response;
+    }
+
+    public function showArticleAction($slug = 1)
+    {
+        $articles = array(
+            array('title'=>'Poznávanie ...', 'body'=>'Poznávanie vyšších svetov', 'authorName'=>'Rudolf Steiner', 'slug'=>'poznavanie.pdf'),
+            array('title'=>'Záhady ...', 'body'=>'Záhady filosofie', 'authorName'=>'Rudolf Steiner', 'slug'=>'zahady.pdf'),
+            array('title'=>'Paliatívna ...', 'body'=>'Paliatívna starostlivosť ...', 'authorName'=>'Monique Tavernierová', 'slug'=>'paliativna.pdf'),
+        );
+        $article = array('title'=>'Poznávanie ...', 'body'=>'Poznávanie vyšších svetov', 'authorName'=>'Rudolf Steiner', 'slug'=>'poznavanie.pdf');
+        return $this->render('BookRequestBundle:Example/Article:articleDetails.html.twig', array('article' => $articles[$slug]));
+    }
+
+    public function recentArticlesAction($max = 3)
+    {
+        $articles = array(
+            array('title'=>'Poznávanie ...', 'body'=>'Poznávanie vyšších svetov', 'authorName'=>'Rudolf Steiner', 'slug'=>'poznavanie.pdf'),
+            array('title'=>'Záhady ...', 'body'=>'Záhady filosofie', 'authorName'=>'Rudolf Steiner', 'slug'=>'zahady.pdf'),
+            array('title'=>'Paliatívna ...', 'body'=>'Paliatívna starostlivosť ...', 'authorName'=>'Monique Tavernierová', 'slug'=>'paliativna.pdf'),
+        );
+        return $this->render('BookRequestBundle:Example/Article:recentList.html.twig', array('articles' => $articles));
+    }
+
     public function indexAction($example_name = 'request', $example = '1', $_route)
     {
         $examples = array();
         switch (strtolower($example_name)) {
             case 'request':
                 $examples = $this->exampleRequest($_route);
+                return $this->render('BookRequestBundle:Example:index.html.twig', array('examples' => $examples));
+                break;
+            case 'requestcontext':
+                $examples = $this->exampleRequestContext();
                 return $this->render('BookRequestBundle:Example:index.html.twig', array('examples' => $examples));
                 break;
             case 'httpfoundation':
@@ -78,11 +154,50 @@ class ExampleController extends Controller
                 $response = $this->exampleJSONResponse($example);
                 return $response;
                 break;
+            case 'expressionlanguage':
+                $examples = $this->exampleExpressionLanguage($example);
+                return $this->render('BookRequestBundle:Example:index.html.twig', array('examples' => $examples));
+                break;
             default:
                 return $this->render('BookRequestBundle:Example:index.html.twig', array('examples' => $examples));
 //              return $this->render('BookRequestBundle:Example:index.html.twig', array('examples' => $examples));
                 break;
         }
+    }
+
+    public function routingAction($culture, $example) {
+        $examples = array();
+        $examples[] = array('label'=>'culture: ', 'value'=>$culture);
+        $examples[] = array('label'=>'example: ', 'value'=>$example);
+
+        $params = $this->get('router')->match('/routingarticle/en/2001/yes.html');
+        $examples[] = array('label'=>'router.match', 'value'=>var_export($params, true));
+
+        $uri = $this->get('router')->generate('book_request_ex_testrouting', array('example' => 8));
+        $examples[] = array('label'=>'generate.uri', 'value'=>$uri);
+        $uri = $this->get('router')->generate('book_request_ex_testrouting', array('example' => 8, 'category' => 'Symfony'));
+        $examples[] = array('label'=>'generate.uri.relative', 'value'=>$uri);
+        $uri = $this->get('router')->generate('book_request_ex_testrouting', array('example' => 8, 'category' => 'Symfony'), true);
+        $examples[] = array('label'=>'generate.uri.absolute', 'value'=>$uri);
+
+        return $this->render('BookRequestBundle:Example:routing.html.twig', array('examples' => $examples));
+    }
+
+    public function testroutingAction($example) {
+        $examples = array();
+        $examples[] = array('label'=>'example: ', 'value'=>$example);
+
+        return $this->render('BookRequestBundle:Example:index.html.twig', array('examples' => $examples));
+    }
+
+    public function routingarticleAction($culture, $year, $title, $_format) {
+        $examples = array();
+        $examples[] = array('label'=>'culture: ', 'value'=>$culture);
+        $examples[] = array('label'=>'year: '   , 'value'=>$year);
+        $examples[] = array('label'=>'title: '  , 'value'=>$title);
+        $examples[] = array('label'=>'_format: ', 'value'=>$_format);
+
+        return $this->render('BookRequestBundle:Example:index.html.twig', array('examples' => $examples));
     }
 
     private function exampleRequest($_route) {
@@ -166,6 +281,38 @@ class ExampleController extends Controller
         $examples[] = array('label'=>'bool isXmlHttpRequest()'                                            , 'value'=>(($request->isXmlHttpRequest()))?'1':'0');
         $examples[] = array('label'=>'getParameter'                                                       , 'value'=>$this->container->getParameter('book_request.my_type'));
         $examples[] = array('label'=>'_route'                                                             , 'value'=>$_route);
+        $examples[] = array('label'=>'request.headers.get("User-Agent")'                                  , 'value'=>$request->headers->get("User-Agent"));
+
+        return $examples;
+    }
+
+    function exampleRequestContext() {
+        $examples = array();
+
+        $context = new RequestContext();
+        $context->fromRequest(Request::createFromGlobals());
+
+        $examples[] = array('label'=>'string getBaseUrl()'                          , 'value'=>$context->getBaseUrl());
+        $examples[] = array('label'=>'setBaseUrl(string $baseUrl)'                  , 'value'=>'-');
+        $examples[] = array('label'=>'string getPathInfo()'                         , 'value'=>$context->getPathInfo());
+        $examples[] = array('label'=>'setPathInfo(string $pathInfo)'                , 'value'=>'-');
+        $examples[] = array('label'=>'string getMethod()'                           , 'value'=>$context->getMethod());
+        $examples[] = array('label'=>'setMethod(string $method)'                    , 'value'=>'-');
+        $examples[] = array('label'=>'string getHost()'                             , 'value'=>$context->getHost());
+        $examples[] = array('label'=>'setHost(string $host)'                        , 'value'=>'-');
+        $examples[] = array('label'=>'string getScheme()'                           , 'value'=>$context->getScheme());
+        $examples[] = array('label'=>'setScheme(string $scheme)'                    , 'value'=>'-');
+        $examples[] = array('label'=>'string getHttpPort()'                         , 'value'=>$context->getHttpPort());
+        $examples[] = array('label'=>'setHttpPort(string $httpPort)'                , 'value'=>'-');
+        $examples[] = array('label'=>'string getHttpsPort()'                        , 'value'=>$context->getHttpsPort());
+        $examples[] = array('label'=>'setHttpsPort(string $httpsPort)'              , 'value'=>'-');
+        $examples[] = array('label'=>'string getQueryString()'                      , 'value'=>$context->getQueryString());
+        $examples[] = array('label'=>'setQueryString(string $queryString)'          , 'value'=>'-');
+        $examples[] = array('label'=>'array getParameters()'                        , 'value'=>var_export($context->getParameters(),true));
+        $examples[] = array('label'=>'Route setParameters(array $parameters)'       , 'value'=>'-');
+        $examples[] = array('label'=>'mixed getParameter(string $name)'             , 'value'=>'-');
+        $examples[] = array('label'=>'setParameter(string $name, mixed $parameter)' , 'value'=>'-');
+        $examples[] = array('label'=>'bool hasParameter(string $name)'              , 'value'=>(($context->hasParameter('test')))?'1':'0');
 
         return $examples;
     }
@@ -436,4 +583,53 @@ class ExampleController extends Controller
         return $response;
     }
 
+    private function exampleExpressionLanguage($example) {
+        $language = new ExpressionLanguage();
+
+        $examples[] = array('label'=>"evaluate('1 + 2'): ", 'value'=>$language->evaluate('1 + 2'));
+        $examples[] = array('label'=>"compile('1 + 2'): ", 'value'=>$language->compile('1 + 2'));
+
+        $apple = new Apple();
+        $apple->variety = 'Honeycrisp';
+        $apple->age = 34;
+        $examples[] = array('label'=>"Accessing Public Properties: ", 'value'=>$language->evaluate('fruit.variety',array('fruit' => $apple,) ));
+
+        $robot = new Robot();
+        $examples[] = array('label'=>"Calling Methods: ", 'value'=>$language->evaluate('robot.sayHi(3)',array('robot' => $robot,)));
+
+        define('DB_USER', 'root');
+        $examples[] = array('label'=>"Constant: ", 'value'=>$language->evaluate('constant("DB_USER")'));
+
+        $data = array('life' => 10, 'universe' => 10, 'everything' => 22);
+        $examples[] = array('label'=>"Array: "  , 'value'=>$language->evaluate('data["life"] + data["universe"] + data["everything"]',array('data' => $data,)));
+        $examples[] = array('label'=>"Array: "  , 'value'=>$language->evaluate('life + universe + everything',array('life' => 10,'universe' => 10,'everything' => 22,)));
+        $examples[] = array('label'=>"matches: ", 'value'=>$language->evaluate('not ("foo" matches "/bar/")'));
+        $examples[] = array('label'=>"compare: ", 'value'=>$language->evaluate('life == everything',array('life' => 10,'universe' => 10,'everything' => 22,)));
+        $examples[] = array('label'=>"compare: ", 'value'=>$language->evaluate('life > everything',array('life' => 10,'universe' => 10,'everything' => 22,) ));
+        $examples[] = array('label'=>"compare: ", 'value'=>$language->evaluate('life < universe or life < everything',array('life' => 10,'universe' => 10,'everything' => 22,)));
+        $examples[] = array('label'=>"compare: ", 'value'=>$language->evaluate('firstName~" "~lastName',array('firstName' => 'Arthur','lastName' => 'Dent',)));
+        $examples[] = array('label'=>"in: "     , 'value'=>$language->evaluate('fruit.variety in ["Honeycrisp", "Redapple"]',array('fruit' => $apple)));
+        $examples[] = array('label'=>"in: "     , 'value'=>$language->evaluate('fruit.age in 18..45',array('fruit' => $apple,)));
+
+
+        return $examples;
+    }
+
+}
+
+class Robot {
+    public function sayHi($times)
+    {
+        $greetings = array();
+        for ($i = 0; $i < $times; $i++) {
+            $greetings[] = 'Hi';
+        }
+        return implode(' ', $greetings).'!';
+    }
+}
+
+
+class Apple {
+    public $variety;
+    public $age;
 }

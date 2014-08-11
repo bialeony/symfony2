@@ -1,0 +1,13 @@
+{% extends 'BookRequestBundle:Example:base.html.twig' %}
+
+{% block sidebar %}{% endblock %}
+
+{% block body %}
+    <h1>Recent Articles</h1>
+    {% for article in articles %}
+        {{ include('BookRequestBundle:Example/Article:articleDetails.html.twig', { 'article': article } ) }}
+    {% endfor %}
+    {{ dump(articles) }}
+{% endblock %}
+
+

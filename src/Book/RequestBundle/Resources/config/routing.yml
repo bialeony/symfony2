@@ -22,3 +22,76 @@ book_request_ex_static:
         maxAge:       86400
         sharedAge:    86400
         private:      false
+
+book_request_ex_routing:
+    path:     /routing/{culture}/{example}
+    defaults:
+      _controller: BookRequestBundle:Example:routing
+      culture: en
+      example: 1
+    requirements:
+      culture:  sk|en|fr
+      example:  \d+
+    methods:  [GET, POST]
+    host: "symfony2"
+
+book_request_ex_routing_mobile:
+    path:     /routing/{culture}/{example}
+    defaults:
+      _controller: BookRequestBundle:Example:routing
+      subdomains: m
+      culture: en
+      example: 1
+    requirements:
+      subdomain: m|mobile
+      culture:  sk|en|fr
+      example:  \d+
+    methods:  [GET, POST]
+    host: "{subdomain}.symfony2"
+
+book_request_ex_testrouting:
+    path:     /testrouting/{example}
+    defaults:
+      _controller: BookRequestBundle:Example:testrouting
+      example: 5
+    condition: "context.getMethod() in ['GET', 'HEAD'] and request.headers.get('User-Agent') matches '/Mozilla/i'"
+
+book_request_ex_testrouting_article:
+  path:     /routingarticle/{culture}/{year}/{title}.{_format}
+  defaults: { _controller: BookRequestBundle:Example:routingarticle, _format: html }
+  requirements:
+      culture:  en|fr|sk
+      _format:  html|rss
+      year:     \d+
+
+book_request_ex_twig:
+    path:     /twig/{example}
+    defaults: { _controller: BookRequestBundle:Example:twig, example: '1' }
+
+book_request_ex_article_show:
+    path:     /article/{slug}
+    defaults: { _controller: BookRequestBundle:Example:showArticle, slug: 1 }
+
+book_request_doctrine_index:
+    path:     /doctrine/{example}
+    defaults: { _controller: BookRequestBundle:Doctrine:index, example: '1' }
+
+book_request_doctrine_product_create:
+    path:     /doctrine/product/create/{example}/{name}/{price}/{description}/{category}
+    defaults: { _controller: BookRequestBundle:Doctrine:createProduct, example: '1', name: 'A Foo Bar', price: 19.99 , description: 'Lorem ipsum dolor', category: 'Main Products' }
+
+book_request_doctrine_product_show:
+    path:     /doctrine/product/show/{id}/{example}
+    defaults: { _controller: BookRequestBundle:Doctrine:showProduct, id: '1', example: '1' }
+
+book_request_doctrine_product_update:
+    path:     /doctrine/product/update/{id}/{name}
+    defaults: { _controller: BookRequestBundle:Doctrine:updateProduct, id: '1', name: 'New product name!' }
+
+book_request_doctrine_product_remove:
+    path:     /doctrine/product/remove/{id}
+    defaults: { _controller: BookRequestBundle:Doctrine:removeProduct, id: '1' }
+
+book_request_doctrine_product_query:
+    path:     /doctrine/product/query/{example}
+    defaults: { _controller: BookRequestBundle:Doctrine:queryProduct, example: '1' }

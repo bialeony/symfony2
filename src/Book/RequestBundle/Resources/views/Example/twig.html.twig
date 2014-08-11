@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {# Comment #}
+        <title>Welcome to Symfony!</title>
+        <link href="{{ asset('css/twig.css') }}" rel="stylesheet" type="text/css" />
+        {% javascripts '@BookRequestBundle/Resources/public/js/*' %}
+            <script type="text/javascript" src="{{ asset_url }}"></script>
+        {% endjavascripts %}
+    </head>
+    <body>
+        <h1>{{ page_title|upper }}</h1>
+        <ul id="navigation">
+            {% for item in navigation %}
+                <li><a href="{{ item.href }}" target="_blank">{{ item.caption }}</a></li>
+            {% endfor %}
+        </ul>
+
+        {% for i in 0..10 %}
+        <div class="{{ cycle(['odd', 'even'], i) }}">
+            {{ 1000000 + i }}
+        </div>
+        {% endfor %}
+
+        <ul>
+            {% for user in users if user.active %}
+                <li>{{ user.username }}</li>
+            {% else %}
+                <li>No users found</li>
+            {% endfor %}
+        </ul>
+        <img src="{{ asset('images/symfony.svg', version='3.0', absolute=true) }}" alt="Symfony!" />
+
+
+        <p>Security: { { app.security.LAST_USERNAME } }</p>
+        <p>User: { { app.user.username } }</p>
+        <p>Request: {{ app.request.method }}</p>
+        <p>Session: {{ app.session.id }}</p>
+        <p>Environment: {{ app.environment }}</p>
+        <p>Debug: {{ app.debug }}</p>
+
+    </body>
+</html>

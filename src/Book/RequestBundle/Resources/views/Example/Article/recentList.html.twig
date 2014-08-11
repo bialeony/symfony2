@@ -1,0 +1,10 @@
+{% for article in articles %}
+    <p>
+        <ul>
+            <li><a href="/article/{{ article.slug }}">{{ article.title }}</a></li>
+            <li>Relative url: <a href="{{ path('book_request_ex_article_show', {'slug': article.slug}) }}">{{ article.title }}</a></li>
+            <li>Absolute url: <a href="{{ url('book_request_ex_article_show', {'slug': article.slug}) }}">{{ article.title }}</a></li>
+        </ul>
+
+    </p>
+{% endfor %}
